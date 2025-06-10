@@ -1,0 +1,58 @@
+<?php
+
+// ==============================================
+// MIGRATIONS
+// ==============================================
+
+// Migration 1: create_promoter_shareholders_table.php
+
+
+// Migration 2: create_share_sell_applications_table.php
+
+// Migration 3: create_sell_application_documents_table.php
+
+
+// Migration 4: create_buyers_table.php
+
+
+// Migration 5: create_buy_applications_table.php
+
+
+// Migration 6: create_buy_application_documents_table.php
+
+
+// Migration 7: create_regulatory_notifications_table.php
+
+// Migration 8: create_share_transactions_table.php
+
+
+// Migration 9: create_audit_trails_table.php
+
+
+// ==============================================
+// MODELS
+// ==============================================
+
+// Model 1: PromoterShareholder.php
+
+// Model 2: ShareSellApplication.php
+
+
+// Model 3: SellApplicationDocument.php
+
+// Model 4: Buyer.php
+
+
+// Model 5: BuyApplication.php
+
+// Model 6: BuyApplicationDocument.php
+
+
+// Model 7: RegulatoryNotification.php
+
+
+// Model 8: ShareTransaction.php
+
+
+// Model 9: AuditTrail.php
+
