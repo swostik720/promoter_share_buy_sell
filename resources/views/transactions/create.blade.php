@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'New Transaction - Promoter Share Management')
-@section('page-title', 'New Transaction')
+@section('title', 'Transaction with Regulatory Notifications - Promoter Share Management')
+@section('page-title', 'Create Transaction with Regulatory Notifications')
 
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-md-10">
+<div class="row">
+    <div class="col-md-8">
         <div class="card shadow">
             <div class="card-header">
                 <h5 class="mb-0">Transaction Details</h5>
@@ -83,12 +83,38 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="transaction_date" class="form-label">Transaction Date <span class="text-danger">*</span></label>
+                        <label for="transaction_date" class="form-label">Transaction Date (Date Selection) <span class="text-danger">*</span></label>
                         <input type="date" class="form-control @error('transaction_date') is-invalid @enderror" 
                                id="transaction_date" name="transaction_date" value="{{ old('transaction_date', date('Y-m-d')) }}" required>
                         @error('transaction_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <!-- Regulatory Notification Dates -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Regulatory Notification Dates</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="sebbon_notification_date" class="form-label">SEBBON Notification Date</label>
+                                    <input type="date" class="form-control" id="sebbon_notification_date" name="sebbon_notification_date" value="{{ old('sebbon_notification_date') }}">
+                                    <small class="text-muted">Inform to SEBBON to sell</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="nepse_notification_date" class="form-label">NEPSE Notification Date</label>
+                                    <input type="date" class="form-control" id="nepse_notification_date" name="nepse_notification_date" value="{{ old('nepse_notification_date') }}">
+                                    <small class="text-muted">Inform to NEPSE to sell</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="nia_notification_date" class="form-label">NIA Notification Date</label>
+                                    <input type="date" class="form-control" id="nia_notification_date" name="nia_notification_date" value="{{ old('nia_notification_date') }}">
+                                    <small class="text-muted">Inform to NIA</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between">
@@ -100,6 +126,76 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0">Regulatory Notifications Required</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-building me-2 text-primary"></i>
+                                <strong>SEBBON</strong>
+                            </div>
+                            <span class="badge bg-danger">Required</span>
+                        </div>
+                        <small class="text-muted">Securities Board of Nepal notification for share transfer</small>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-chart-line me-2 text-success"></i>
+                                <strong>NEPSE</strong>
+                            </div>
+                            <span class="badge bg-danger">Required</span>
+                        </div>
+                        <small class="text-muted">Nepal Stock Exchange notification for trading</small>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-university me-2 text-info"></i>
+                                <strong>NIA</strong>
+                            </div>
+                            <span class="badge bg-danger">Required</span>
+                        </div>
+                        <small class="text-muted">National Insurance Authority notification</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">Required Documents for Upload</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <i class="fas fa-file-pdf me-2 text-danger"></i>
+                        SEBBON Notification Document
+                    </div>
+                    <div class="list-group-item">
+                        <i class="fas fa-file-pdf me-2 text-success"></i>
+                        NEPSE Notification Document
+                    </div>
+                    <div class="list-group-item">
+                        <i class="fas fa-file-pdf me-2 text-info"></i>
+                        NIA Notification Document
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Documents can be uploaded after creating the transaction.
+                    </small>
+                </div>
             </div>
         </div>
     </div>

@@ -18,29 +18,32 @@ use App\Http\Controllers\TransactionController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-// Shareholders
+// Shareholders Routes
 Route::resource('shareholders', ShareholderController::class);
 
-// Sell Applications
+// Sell Applications Routes
 Route::resource('sell-applications', SellApplicationController::class);
 Route::patch('sell-applications/{id}/status', [SellApplicationController::class, 'updateStatus'])->name('sell-applications.update-status');
 
-// Buy Applications
+// Buy Applications Routes
 Route::resource('buy-applications', BuyApplicationController::class);
 Route::patch('buy-applications/{id}/status', [BuyApplicationController::class, 'updateStatus'])->name('buy-applications.update-status');
 
-// Documents
-Route::resource('documents', DocumentController::class);
+// Documents Routes
+Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+Route::get('documents/{id}', [DocumentController::class, 'show'])->name('documents.show');
 Route::get('documents/{id}/download', [DocumentController::class, 'download'])->name('documents.download');
-Route::patch('documents/{id}/verify', [DocumentController::class, 'verify'])->name('documents.verify');
+Route::get('documents/{id}/view', [DocumentController::class, 'view'])->name('documents.view');
+Route::post('documents/upload', [DocumentController::class, 'upload'])->name('documents.upload');
+Route::post('documents/{id}/verify', [DocumentController::class, 'verify'])->name('documents.verify');
+Route::delete('documents/{id}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
-// Board Decisions
+// Board Decisions Routes
 Route::resource('board-decisions', BoardDecisionController::class);
 
-// Notice Publications
+// Notice Publications Routes
 Route::resource('notice-publications', NoticePublicationController::class);
 
-// Transactions
+// Transactions Routes
 Route::resource('transactions', TransactionController::class);
-Route::patch('transactions/{id}/complete', [TransactionController::class, 'complete'])->name('transactions.complete');
 Route::patch('transactions/{id}/status', [TransactionController::class, 'updateStatus'])->name('transactions.update-status');

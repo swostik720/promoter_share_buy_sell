@@ -48,7 +48,10 @@ class TransactionController extends Controller
             'buy_application_id' => 'required|exists:buy_applications,id',
             'share_quantity' => 'required|integer|min:1',
             'price_per_share' => 'required|numeric|min:0',
-            'transaction_date' => 'required|date'
+            'transaction_date' => 'required|date',
+            'sebbon_notification_date' => 'nullable|date',
+            'nepse_notification_date' => 'nullable|date',
+            'nia_notification_date' => 'nullable|date'
         ]);
 
         $buyApplication = BuyApplication::with('sellApplication')->findOrFail($validated['buy_application_id']);
@@ -71,11 +74,14 @@ class TransactionController extends Controller
             'total_amount' => $totalAmount,
             'transaction_date' => $validated['transaction_date'],
             'transaction_reference' => 'TXN-' . Str::upper(Str::random(10)),
-            'status' => 'pending'
+            'status' => 'pending',
+            'sebbon_notification_date' => $validated['sebbon_notification_date'],
+            'nepse_notification_date' => $validated['nepse_notification_date'],
+            'nia_notification_date' => $validated['nia_notification_date']
         ]);
 
         return redirect()->route('transactions.index')
-            ->with('success', 'Transaction created successfully');
+            ->with('success', 'Transaction created successfully with regulatory notification dates');
     }
 
     public function complete($id)

@@ -12,18 +12,38 @@ return new class extends Migration
             $table->id();
             $table->morphs('documentable'); // For polymorphic relationship
             $table->enum('document_type', [
-                'application',
-                'citizenship',
-                'tax_clearance',
-                'cia_report',
-                'moa_aoa',
-                'decision_minute',
-                'income_source',
+                // Sell Application Documents
+                'sell_application',
+                'seller_citizenship',
+                'seller_tax_clearance',
+                'seller_cia_report',
+                'seller_moa_aoa',
+                'seller_decision_minute',
+                'seller_others',
+                
+                // Buy Application Documents
+                'buy_application',
+                'buyer_citizenship',
+                'buyer_cia_report',
+                'buyer_tax_clearance',
+                'buyer_income_source',
+                'buyer_moa_aoa',
+                'buyer_decision_minute',
+                'buyer_others',
                 'combine_application',
                 'police_report',
                 'self_declaration',
+                
+                // Regulatory Documents
                 'sebbon_notification',
                 'nepse_notification',
+                'nia_notification',
+                
+                // Board Documents
+                'board_decision_minute',
+                'notice_publication',
+                
+                // General
                 'other'
             ]);
             $table->string('file_name');

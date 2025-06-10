@@ -14,6 +14,7 @@ class SellApplication extends Model
         'share_quantity_to_sell',
         'proposed_price_per_share',
         'application_date',
+        'demat_account',
         'status',
         'reason'
     ];
@@ -51,5 +52,37 @@ class SellApplication extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function getRequiredDocuments()
+    {
+        $required = [
+            'sell_application',
+            'seller_citizenship', 
+            'seller_tax_clearance',
+            'seller_cia_report'
+        ];
+
+        if ($this->seller && $this->seller->type === 'institutional') {
+            $required[] = 'seller_moa_aoa';
+            $required[] = 'seller_decision_minute';
+        }
+
+        return $required;
+    }
+
+    public function getUploadedDocuments()
+    {
+        return $this->documents->pluck('document_type')->toArray();
+    }
+
+    public function getMissingDocuments()
+    {
+        return array_diff($this->getRequiredDocuments(), $this->getUploadedDocuments());
+    }
+
+    public function hasAllRequiredDocuments()
+    {
+        return empty($this->getMissingDocuments());
     }
 }

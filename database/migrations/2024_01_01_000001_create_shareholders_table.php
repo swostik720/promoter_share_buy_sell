@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->enum('type', ['individual', 'institutional']);
-            $table->enum('category', ['promoter', 'public']);
+            $table->enum('category', ['promoter', 'public'])->default('promoter');
             $table->integer('share_quantity');
             $table->string('citizenship_number')->nullable();
             $table->string('pan_number')->nullable();

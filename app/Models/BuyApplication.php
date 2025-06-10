@@ -44,4 +44,40 @@ class BuyApplication extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function getRequiredDocuments()
+    {
+        $required = [
+            'buy_application',
+            'buyer_citizenship',
+            'buyer_cia_report',
+            'buyer_tax_clearance',
+            'buyer_income_source',
+            'combine_application',
+            'police_report',
+            'self_declaration'
+        ];
+
+        if ($this->buyer_type === 'institutional') {
+            $required[] = 'buyer_moa_aoa';
+            $required[] = 'buyer_decision_minute';
+        }
+
+        return $required;
+    }
+
+    public function getUploadedDocuments()
+    {
+        return $this->documents->pluck('document_type')->toArray();
+    }
+
+    public function getMissingDocuments()
+    {
+        return array_diff($this->getRequiredDocuments(), $this->getUploadedDocuments());
+    }
+
+    public function hasAllRequiredDocuments()
+    {
+        return empty($this->getMissingDocuments());
+    }
 }
