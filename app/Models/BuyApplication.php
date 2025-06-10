@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,44 +9,39 @@ class BuyApplication extends Model
 {
     use HasFactory;
 
-    protected $table = 'buy_applications';
-    protected $primaryKey = 'buy_application_id';
-
     protected $fillable = [
         'sell_application_id',
-        'buyer_id',
+        'buyer_name',
+        'buyer_type',
+        'buyer_category',
+        'share_quantity_to_buy',
+        'offered_price_per_share',
         'application_date',
-        'requested_share_quantity',
-        'application_status',
-        'is_combine_application'
+        'status',
+        'citizenship_number',
+        'pan_number',
+        'demat_account',
+        'contact_details'
     ];
 
     protected $casts = [
         'application_date' => 'date',
-        'requested_share_quantity' => 'decimal:2',
-        'is_combine_application' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'offered_price_per_share' => 'decimal:2',
+        'contact_details' => 'array'
     ];
 
-    // Relationships
     public function sellApplication()
     {
-        return $this->belongsTo(ShareSellApplication::class, 'sell_application_id', 'application_id');
-    }
-
-    public function buyer()
-    {
-        return $this->belongsTo(Buyer::class, 'buyer_id', 'buyer_id');
-    }
-
-    public function documents()
-    {
-        return $this->hasMany(BuyApplicationDocument::class, 'buy_application_id', 'buy_application_id');
+        return $this->belongsTo(SellApplication::class);
     }
 
     public function transactions()
     {
-        return $this->hasMany(ShareTransaction::class, 'buy_application_id', 'buy_application_id');
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }
