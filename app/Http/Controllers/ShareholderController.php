@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class ShareholderController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $shareholders = Shareholder::where('is_active', true)
@@ -37,14 +42,20 @@ class ShareholderController extends Controller
             'category' => 'required|in:promoter,public',
             'share_quantity' => 'required|integer|min:1',
             'citizenship_number' => 'nullable|string',
+            'gender' => 'nullable|in:male,female,other',
+            'contact_number' => 'nullable|string',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
+            'boid' => 'nullable|string',
+            'father_name' => 'nullable|string',
+            'grandfather_name' => 'nullable|string',
+            'contact_person' => 'nullable|string',
             'pan_number' => 'nullable|string',
-            'demat_account' => 'nullable|string',
-            'phone' => 'nullable|string',
-            'email' => 'nullable|email'
+            'demat_account' => 'nullable|string'
         ]);
 
         $contactDetails = [];
-        if ($request->phone) $contactDetails['phone'] = $request->phone;
+        if ($request->contact_number) $contactDetails['phone'] = $request->contact_number;
         if ($request->email) $contactDetails['email'] = $request->email;
         
         $validated['contact_details'] = $contactDetails;
@@ -71,14 +82,20 @@ class ShareholderController extends Controller
             'category' => 'required|in:promoter,public',
             'share_quantity' => 'required|integer|min:1',
             'citizenship_number' => 'nullable|string',
+            'gender' => 'nullable|in:male,female,other',
+            'contact_number' => 'nullable|string',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
+            'boid' => 'nullable|string',
+            'father_name' => 'nullable|string',
+            'grandfather_name' => 'nullable|string',
+            'contact_person' => 'nullable|string',
             'pan_number' => 'nullable|string',
-            'demat_account' => 'nullable|string',
-            'phone' => 'nullable|string',
-            'email' => 'nullable|email'
+            'demat_account' => 'nullable|string'
         ]);
 
         $contactDetails = [];
-        if ($request->phone) $contactDetails['phone'] = $request->phone;
+        if ($request->contact_number) $contactDetails['phone'] = $request->contact_number;
         if ($request->email) $contactDetails['email'] = $request->email;
         
         $validated['contact_details'] = $contactDetails;
@@ -96,5 +113,15 @@ class ShareholderController extends Controller
 
         return redirect()->route('shareholders.index')
             ->with('success', 'Shareholder deactivated successfully');
+    }
+
+    public function getShareholderData($id)
+    {
+        $shareholder = Shareholder::findOrFail($id);
+        return response()->json([
+            'type' => $shareholder->type,
+            'boid' => $shareholder->boid,
+            'demat_account' => $shareholder->demat_account
+        ]);
     }
 }

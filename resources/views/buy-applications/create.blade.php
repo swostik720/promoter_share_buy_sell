@@ -367,7 +367,30 @@
 
 @section('scripts')
 <script>
-document.getElementById('buyer_type').addEventListener('change', function() {
+// Handle buyer category change
+document.getElementById('buyer_category').addEventListener('change', function() {
+    const buyerType = document.getElementById('buyer_type');
+    
+    if (this.value === 'existing_promoter') {
+        // Auto-select institutional for existing promoter
+        buyerType.value = 'institutional';
+        buyerType.disabled = true;
+        triggerBuyerTypeChange();
+    } else if (this.value === 'public') {
+        // Enable dropdown for public category
+        buyerType.disabled = false;
+        buyerType.value = '';
+    } else {
+        buyerType.disabled = false;
+        buyerType.value = '';
+    }
+});
+
+// Handle buyer type change
+document.getElementById('buyer_type').addEventListener('change', triggerBuyerTypeChange);
+
+function triggerBuyerTypeChange() {
+    const buyerType = document.getElementById('buyer_type');
     const buyerMoaAoa = document.getElementById('buyer-moa-aoa');
     const buyerDecisionMinute = document.getElementById('buyer-decision-minute');
     const buyerMoaAoaUpload = document.getElementById('buyer-moa-aoa-upload');
@@ -375,7 +398,7 @@ document.getElementById('buyer_type').addEventListener('change', function() {
     const moaAoaInput = document.getElementById('buyer_moa_aoa');
     const decisionMinuteInput = document.getElementById('buyer_decision_minute');
     
-    if (this.value === 'institutional') {
+    if (buyerType.value === 'institutional') {
         buyerMoaAoa.style.display = 'block';
         buyerDecisionMinute.style.display = 'block';
         buyerMoaAoaUpload.style.display = 'block';
@@ -390,7 +413,7 @@ document.getElementById('buyer_type').addEventListener('change', function() {
         moaAoaInput.required = false;
         decisionMinuteInput.required = false;
     }
-});
+}
 
 document.getElementById('share_quantity_to_buy').addEventListener('input', calculateTotal);
 document.getElementById('offered_price_per_share').addEventListener('input', calculateTotal);
@@ -401,6 +424,14 @@ function calculateTotal() {
     const total = quantity * price;
     
     console.log('Total Amount: Rs. ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+}
+
+// Trigger change events if values are pre-selected
+if (document.getElementById('buyer_category').value) {
+    document.getElementById('buyer_category').dispatchEvent(new Event('change'));
+}
+if (document.getElementById('buyer_type').value) {
+    triggerBuyerTypeChange();
 }
 </script>
 @endsection

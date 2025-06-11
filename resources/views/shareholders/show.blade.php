@@ -115,9 +115,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $application->status == 'pending' ? 'warning' : 
-                                        ($application->status == 'completed' ? 'success' : 'info') 
+                                    <span class="badge bg-{{
+                                        $application->status == 'pending' ? 'warning' :
+                                        ($application->status == 'completed' ? 'success' : 'info')
                                     }}">
                                         {{ ucfirst(str_replace('_', ' ', $application->status)) }}
                                     </span>
@@ -182,7 +182,7 @@
                 @csrf
                 <input type="hidden" name="documentable_type" value="App\Models\Shareholder">
                 <input type="hidden" name="documentable_id" value="{{ $shareholder->id }}">
-                
+
                 <div class="modal-header">
                     <h5 class="modal-title">Upload Document</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

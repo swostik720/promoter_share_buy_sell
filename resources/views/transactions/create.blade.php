@@ -11,7 +11,7 @@
                 <h5 class="mb-0">Transaction Details</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('transactions.store') }}" method="POST">
+                <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="mb-3">
@@ -117,6 +117,46 @@
                         </div>
                     </div>
 
+                    <!-- Regulatory Inform Attachments -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Regulatory Inform Containing Attachments</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="sebbon_notification_doc" class="form-label">Inform to SEBBON Document</label>
+                                    <input type="file" class="form-control @error('sebbon_notification_doc') is-invalid @enderror" 
+                                           id="sebbon_notification_doc" name="sebbon_notification_doc" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="form-text text-muted">PDF, JPG, PNG (Max: 5MB)</small>
+                                    @error('sebbon_notification_doc')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="nepse_notification_doc" class="form-label">Inform to NEPSE Document</label>
+                                    <input type="file" class="form-control @error('nepse_notification_doc') is-invalid @enderror" 
+                                           id="nepse_notification_doc" name="nepse_notification_doc" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="form-text text-muted">PDF, JPG, PNG (Max: 5MB)</small>
+                                    @error('nepse_notification_doc')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="nia_notification_doc" class="form-label">Inform to NIA Document</label>
+                                    <input type="file" class="form-control @error('nia_notification_doc') is-invalid @enderror" 
+                                           id="nia_notification_doc" name="nia_notification_doc" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="form-text text-muted">PDF, JPG, PNG (Max: 5MB)</small>
+                                    @error('nia_notification_doc')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between">
                         <a href="{{ route('transactions.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Back
@@ -193,7 +233,7 @@
                 <div class="mt-3">
                     <small class="text-muted">
                         <i class="fas fa-info-circle me-1"></i>
-                        Documents can be uploaded after creating the transaction.
+                        Documents can be uploaded during transaction creation or later.
                     </small>
                 </div>
             </div>

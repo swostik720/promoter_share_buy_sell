@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class BuyApplicationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $applications = BuyApplication::with(['sellApplication.seller', 'documents'])

@@ -19,14 +19,20 @@ class Transaction extends Model
         'transaction_date',
         'transaction_reference',
         'status',
-        'regulatory_notifications'
+        'regulatory_notifications',
+        'sebbon_notification_date',
+        'nepse_notification_date',
+        'nia_notification_date'
     ];
 
     protected $casts = [
         'transaction_date' => 'date',
         'price_per_share' => 'decimal:2',
         'total_amount' => 'decimal:2',
-        'regulatory_notifications' => 'array'
+        'regulatory_notifications' => 'array',
+        'sebbon_notification_date' => 'date',
+        'nepse_notification_date' => 'date',
+        'nia_notification_date' => 'date'
     ];
 
     public function sellApplication()
@@ -42,5 +48,10 @@ class Transaction extends Model
     public function seller()
     {
         return $this->belongsTo(Shareholder::class, 'seller_id');
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

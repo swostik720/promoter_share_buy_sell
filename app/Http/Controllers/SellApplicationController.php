@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SellApplicationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $applications = SellApplication::with(['seller', 'boardDecision', 'noticePublication', 'documents'])
@@ -47,12 +52,14 @@ class SellApplicationController extends Controller
     {
         $validated = $request->validate([
             'seller_id' => 'required|exists:shareholders,id',
+            'seller_type' => 'required|in:individual,institutional',
             'share_quantity_to_sell' => 'required|integer|min:1',
             'proposed_price_per_share' => 'nullable|numeric|min:0',
             'application_date' => 'required|date',
-            'demat_account' => 'required|string',
+            'demat_account' => 'nullable|string',
+            'boid' => 'nullable|string',
             'reason' => 'nullable|string',
-            
+
             // Document uploads
             'sell_application_doc' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'seller_citizenship' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -60,8 +67,17 @@ class SellApplicationController extends Controller
             'seller_cia_report' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'seller_moa_aoa' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'seller_decision_minute' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'demat_account_details' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'seller_others' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
+
+        // Additional validation for institutional sellers
+        if ($validated['seller_type'] === 'institutional') {
+            $request->validate([
+                'seller_moa_aoa' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'seller_decision_minute' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            ]);
+        }
 
         // Check if seller has enough shares
         $seller = Shareholder::findOrFail($validated['seller_id']);
@@ -71,14 +87,7 @@ class SellApplicationController extends Controller
         }
 
         // Create sell application
-        $sellApplication = SellApplication::create([
-            'seller_id' => $validated['seller_id'],
-            'share_quantity_to_sell' => $validated['share_quantity_to_sell'],
-            'proposed_price_per_share' => $validated['proposed_price_per_share'],
-            'application_date' => $validated['application_date'],
-            'demat_account' => $validated['demat_account'],
-            'reason' => $validated['reason'],
-        ]);
+        $sellApplication = SellApplication::create($validated);
 
         // Handle document uploads
         $this->handleDocumentUploads($request, $sellApplication, 'sell');
@@ -104,17 +113,19 @@ class SellApplicationController extends Controller
 
         $validated = $request->validate([
             'seller_id' => 'required|exists:shareholders,id',
+            'seller_type' => 'required|in:individual,institutional',
             'share_quantity_to_sell' => 'required|integer|min:1',
             'proposed_price_per_share' => 'nullable|numeric|min:0',
             'application_date' => 'required|date',
-            'demat_account' => 'required|string',
+            'demat_account' => 'nullable|string',
+            'boid' => 'nullable|string',
             'reason' => 'nullable|string'
         ]);
 
         $application->update($validated);
 
         // Handle new document uploads if any
-        if ($request->hasAnyFile(['sell_application_doc', 'seller_citizenship', 'seller_tax_clearance', 'seller_cia_report', 'seller_moa_aoa', 'seller_decision_minute', 'seller_others'])) {
+        if ($request->hasAnyFile(['sell_application_doc', 'seller_citizenship', 'seller_tax_clearance', 'seller_cia_report', 'seller_moa_aoa', 'seller_decision_minute', 'demat_account_details', 'seller_others'])) {
             $this->handleDocumentUploads($request, $application, 'sell');
         }
 
@@ -144,6 +155,7 @@ class SellApplicationController extends Controller
             'seller_cia_report' => 'seller_cia_report',
             'seller_moa_aoa' => 'seller_moa_aoa',
             'seller_decision_minute' => 'seller_decision_minute',
+            'demat_account_details' => 'demat_account_details',
             'seller_others' => 'seller_others',
         ];
 

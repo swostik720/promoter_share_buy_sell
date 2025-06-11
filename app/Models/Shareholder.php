@@ -15,6 +15,14 @@ class Shareholder extends Model
         'category',
         'share_quantity',
         'citizenship_number',
+        'gender',
+        'contact_number',
+        'email',
+        'address',
+        'boid',
+        'father_name',
+        'grandfather_name',
+        'contact_person',
         'pan_number',
         'demat_account',
         'contact_details',
@@ -39,5 +47,13 @@ class Shareholder extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function getFullNameAttribute()
+    {
+        if ($this->type === 'individual' && $this->father_name && $this->grandfather_name) {
+            return "{$this->name} S/O {$this->father_name} S/O {$this->grandfather_name}";
+        }
+        return $this->name;
     }
 }

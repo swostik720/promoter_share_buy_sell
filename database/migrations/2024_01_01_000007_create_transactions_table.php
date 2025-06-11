@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('transaction_date');
             $table->string('transaction_reference')->unique();
             $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
-            $table->json('regulatory_notifications')->nullable(); // SEBBON, NEPSE, NIA
+            $table->json('regulatory_notifications')->nullable();
             $table->date('sebbon_notification_date')->nullable();
             $table->date('nepse_notification_date')->nullable();
             $table->date('nia_notification_date')->nullable();

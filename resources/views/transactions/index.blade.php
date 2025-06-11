@@ -46,9 +46,9 @@
                         <td>Rs. {{ number_format($transaction->price_per_share, 2) }}</td>
                         <td>Rs. {{ number_format($transaction->total_amount, 2) }}</td>
                         <td>
-                            <span class="badge bg-{{ 
-                                $transaction->status == 'pending' ? 'warning' : 
-                                ($transaction->status == 'completed' ? 'success' : 'danger') 
+                            <span class="badge bg-{{
+                                $transaction->status == 'pending' ? 'warning' :
+                                ($transaction->status == 'completed' ? 'success' : 'danger')
                             }}">
                                 {{ ucfirst($transaction->status) }}
                             </span>
@@ -61,7 +61,7 @@
                                 @if($transaction->status == 'pending')
                                 <form action="{{ route('transactions.complete', $transaction->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    @method('PATCH')
+                                    @method('POST')
                                     <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Complete this transaction?')">
                                         <i class="fas fa-check-circle"></i>
                                     </button>

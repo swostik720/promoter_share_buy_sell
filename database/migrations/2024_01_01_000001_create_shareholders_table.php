@@ -15,6 +15,14 @@ return new class extends Migration
             $table->enum('category', ['promoter', 'public'])->default('promoter');
             $table->integer('share_quantity');
             $table->string('citizenship_number')->nullable();
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('email')->nullable();
+            $table->text('address')->nullable();
+            $table->string('boid')->nullable(); // Beneficiary Owner ID
+            $table->string('father_name')->nullable();
+            $table->string('grandfather_name')->nullable();
+            $table->string('contact_person')->nullable(); // For institutional shareholders
             $table->string('pan_number')->nullable();
             $table->string('demat_account')->nullable();
             $table->json('contact_details')->nullable();

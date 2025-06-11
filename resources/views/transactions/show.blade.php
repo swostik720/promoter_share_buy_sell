@@ -13,7 +13,7 @@
                     @if($transaction->status == 'pending')
                     <form action="{{ route('transactions.complete', $transaction->id) }}" method="POST" class="d-inline">
                         @csrf
-                        @method('PATCH')
+                        @method('POST')
                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Complete this transaction? This action cannot be undone.')">
                             <i class="fas fa-check-circle me-1"></i>Complete Transaction
                         </button>
@@ -55,9 +55,9 @@
                             <tr>
                                 <th width="40%">Status:</th>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $transaction->status == 'pending' ? 'warning' : 
-                                        ($transaction->status == 'completed' ? 'success' : 'danger') 
+                                    <span class="badge bg-{{
+                                        $transaction->status == 'pending' ? 'warning' :
+                                        ($transaction->status == 'completed' ? 'success' : 'danger')
                                     }} fs-6">
                                         {{ ucfirst($transaction->status) }}
                                     </span>

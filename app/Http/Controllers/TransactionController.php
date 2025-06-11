@@ -6,11 +6,18 @@ use App\Models\Transaction;
 use App\Models\BuyApplication;
 use App\Models\SellApplication;
 use App\Models\Shareholder;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class TransactionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $transactions = Transaction::with([
@@ -26,7 +33,8 @@ class TransactionController extends Controller
         $transaction = Transaction::with([
             'sellApplication.seller',
             'buyApplication',
-            'seller'
+            'seller',
+            'documents'
         ])->findOrFail($id);
 
         return view('transactions.show', compact('transaction'));
@@ -51,7 +59,12 @@ class TransactionController extends Controller
             'transaction_date' => 'required|date',
             'sebbon_notification_date' => 'nullable|date',
             'nepse_notification_date' => 'nullable|date',
-            'nia_notification_date' => 'nullable|date'
+            'nia_notification_date' => 'nullable|date',
+            
+            // Regulatory notification documents
+            'sebbon_notification_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'nepse_notification_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'nia_notification_doc' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $buyApplication = BuyApplication::with('sellApplication')->findOrFail($validated['buy_application_id']);
@@ -65,7 +78,7 @@ class TransactionController extends Controller
         // Calculate total amount
         $totalAmount = $validated['share_quantity'] * $validated['price_per_share'];
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'sell_application_id' => $sellApplication->id,
             'buy_application_id' => $validated['buy_application_id'],
             'seller_id' => $sellApplication->seller_id,
@@ -80,8 +93,11 @@ class TransactionController extends Controller
             'nia_notification_date' => $validated['nia_notification_date']
         ]);
 
-        return redirect()->route('transactions.index')
-            ->with('success', 'Transaction created successfully with regulatory notification dates');
+        // Handle regulatory notification document uploads
+        $this->handleRegulatoryDocuments($request, $transaction);
+
+        return redirect()->route('transactions.show', $transaction->id)
+            ->with('success', 'Transaction created successfully with regulatory notification dates and documents');
     }
 
     public function complete($id)
@@ -140,5 +156,34 @@ class TransactionController extends Controller
         $transaction->update($validated);
 
         return back()->with('success', 'Transaction status updated successfully');
+    }
+
+    private function handleRegulatoryDocuments(Request $request, $transaction)
+    {
+        $documentTypes = [
+            'sebbon_notification_doc' => 'sebbon_notification',
+            'nepse_notification_doc' => 'nepse_notification',
+            'nia_notification_doc' => 'nia_notification',
+        ];
+
+        foreach ($documentTypes as $fileKey => $docType) {
+            if ($request->hasFile($fileKey)) {
+                $file = $request->file($fileKey);
+                $fileName = time() . '_' . $fileKey . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('documents/transactions/' . $transaction->id, $fileName, 'public');
+
+                // Create new document record
+                Document::create([
+                    'documentable_type' => get_class($transaction),
+                    'documentable_id' => $transaction->id,
+                    'document_type' => $docType,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'file_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                    'upload_date' => now(),
+                ]);
+            }
+        }
     }
 }

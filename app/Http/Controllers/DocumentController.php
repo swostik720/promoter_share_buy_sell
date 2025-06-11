@@ -9,93 +9,141 @@ use Illuminate\Support\Facades\Response;
 
 class DocumentController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        $documents = Document::with('documentable')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
+        $documents = Document::with('documentable')->orderBy('created_at', 'desc')->paginate(15);
         return view('documents.index', compact('documents'));
     }
 
     public function show($id)
     {
-        $document = Document::with('documentable')->findOrFail($id);
+        $document = Document::findOrFail($id);
         return view('documents.show', compact('document'));
     }
 
     public function download($id)
     {
         $document = Document::findOrFail($id);
-        
-        if (!Storage::disk('public')->exists($document->file_path)) {
+        $path = storage_path('app/public/' . $document->file_path);
+
+        if (!file_exists($path)) {
             abort(404, 'File not found');
         }
 
-        return Storage::disk('public')->download($document->file_path, $document->file_name);
+        return Response::download($path, $document->file_name);
     }
 
     public function view($id)
     {
         $document = Document::findOrFail($id);
-        
-        if (!Storage::disk('public')->exists($document->file_path)) {
+        $path = storage_path('app/public/' . $document->file_path);
+
+        if (!file_exists($path)) {
             abort(404, 'File not found');
         }
 
-        $file = Storage::disk('public')->get($document->file_path);
-        $type = Storage::disk('public')->mimeType($document->file_path);
+        $file = file_get_contents($path);
+        $type = $document->file_type;
 
-        return Response::make($file, 200, [
-            'Content-Type' => $type,
-            'Content-Disposition' => 'inline; filename="' . $document->file_name . '"'
-        ]);
-    }
-
-    public function destroy($id)
-    {
-        $document = Document::findOrFail($id);
-        
-        // Delete file from storage
-        if (Storage::disk('public')->exists($document->file_path)) {
-            Storage::disk('public')->delete($document->file_path);
-        }
-        
-        // Delete database record
-        $document->delete();
-
-        return back()->with('success', 'Document deleted successfully');
-    }
-
-    public function verify(Request $request, $id)
-    {
-        $document = Document::findOrFail($id);
-        
-        $validated = $request->validate([
-            'is_verified' => 'required|boolean',
-            'remarks' => 'nullable|string'
-        ]);
-
-        $document->update($validated);
-
-        return back()->with('success', 'Document verification status updated');
+        return response($file, 200)->header('Content-Type', $type);
     }
 
     public function upload(Request $request)
     {
         $validated = $request->validate([
-            'documentable_type' => 'required|string',
-            'documentable_id' => 'required|integer',
             'document_type' => 'required|string',
-            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120'
+            'related_type' => 'required|string',
+            'related_id' => 'required|integer',
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
         ]);
 
         $file = $request->file('file');
         $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = $file->storeAs('documents/' . strtolower(class_basename($validated['documentable_type'])) . 's/' . $validated['documentable_id'], $fileName, 'public');
 
-        Document::create([
-            'documentable_type' => $validated['documentable_type'],
+        // Determine the model class from the related_type
+        $modelClass = $this->getModelClass($validated['related_type']);
+        if (!$modelClass) {
+            return back()->withErrors(['related_type' => 'Invalid related type']);
+        }
+
+        // Check if the related record exists
+        $related = $modelClass::find($validated['related_id']);
+        if (!$related) {
+            return back()->withErrors(['related_id' => 'Related record not found']);
+        }
+
+        // Store the file
+        $filePath = $file->storeAs(
+            'documents/' . $validated['related_type'] . '/' . $validated['related_id'],
+            $fileName,
+            'public'
+        );
+
+        // Create document record
+        $document = Document::create([
+            'documentable_type' => get_class($related),
+            'documentable_id' => $validated['related_id'],
+            'document_type' => $validated['document_type'],
+            'file_name' => $file->getClientOriginalName(),
+            'file_path' => $filePath,
+            'file_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+            'upload_date' => now(),
+            'status' => 'pending',
+        ]);
+
+        return redirect()->back()->with('success', 'Document uploaded successfully');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'document_type' => 'required|string',
+            'documentable_type' => 'required|string',
+            'documentable_id' => 'required|integer',
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240',
+        ]);
+
+        $file = $request->file('file');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+
+        // Map the documentable_type to a model namespace
+        $modelMap = [
+            'sell_application' => 'App\\Models\\SellApplication',
+            'buy_application' => 'App\\Models\\BuyApplication',
+            'transaction' => 'App\\Models\\Transaction',
+            'shareholder' => 'App\\Models\\Shareholder',
+            'board_decision' => 'App\\Models\\BoardDecision',
+            'notice_publication' => 'App\\Models\\NoticePublication',
+        ];
+
+        $documentableType = $modelMap[$validated['documentable_type']] ?? null;
+
+        if (!$documentableType || !class_exists($documentableType)) {
+            return back()->withErrors(['documentable_type' => 'Invalid documentable type']);
+        }
+
+        // Check if the related record exists
+        $related = $documentableType::find($validated['documentable_id']);
+        if (!$related) {
+            return back()->withErrors(['documentable_id' => 'Related record not found']);
+        }
+
+        // Store the file
+        $filePath = $file->storeAs(
+            'documents/' . strtolower(class_basename($documentableType)) . '/' . $validated['documentable_id'],
+            $fileName,
+            'public'
+        );
+
+        // Create document record
+        $document = Document::create([
+            'documentable_type' => $documentableType,
             'documentable_id' => $validated['documentable_id'],
             'document_type' => $validated['document_type'],
             'file_name' => $file->getClientOriginalName(),
@@ -103,8 +151,50 @@ class DocumentController extends Controller
             'file_type' => $file->getClientMimeType(),
             'file_size' => $file->getSize(),
             'upload_date' => now(),
+            'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Document uploaded successfully');
+        return redirect()->back()->with('success', 'Document uploaded successfully');
+    }
+
+    public function verify(Request $request, $id)
+    {
+        $document = Document::findOrFail($id);
+        $document->update([
+            'status' => 'verified',
+            'verified_by' => auth()->id(),
+            'verified_at' => now(),
+        ]);
+
+        return back()->with('success', 'Document verified successfully');
+    }
+
+    public function destroy($id)
+    {
+        $document = Document::findOrFail($id);
+
+        // Delete the file from storage
+        if (Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        // Delete the record
+        $document->delete();
+
+        return back()->with('success', 'Document deleted successfully');
+    }
+
+    private function getModelClass($type)
+    {
+        $map = [
+            'sell_applications' => 'App\\Models\\SellApplication',
+            'buy_applications' => 'App\\Models\\BuyApplication',
+            'transactions' => 'App\\Models\\Transaction',
+            'shareholders' => 'App\\Models\\Shareholder',
+            'board_decisions' => 'App\\Models\\BoardDecision',
+            'notice_publications' => 'App\\Models\\NoticePublication',
+        ];
+
+        return $map[$type] ?? null;
     }
 }
