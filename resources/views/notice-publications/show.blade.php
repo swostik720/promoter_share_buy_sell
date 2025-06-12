@@ -38,6 +38,33 @@
                                 <th>Created:</th>
                                 <td>{{ $notice->created_at->format('M d, Y H:i') }}</td>
                             </tr>
+                            <tr>
+                                    <th>Document:</th>
+                                    <td>
+                                        {{-- Show existing file if available --}}
+                                        @php
+                                            $doc = $notice->documents
+                                                ->where('document_type', 'notice_publication')
+                                                ->first();
+                                        @endphp
+
+                                        @if ($doc)
+                                            <div class="mt-2">
+                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank"
+                                                    class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i> Preview
+                                                </a>
+
+                                                {{-- Download Button --}}
+                                                <a href="{{ asset('storage/' . $doc->file_path) }}"
+                                                    download="{{ $doc->file_name }}"
+                                                    class="btn btn-outline-success btn-sm">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -67,15 +94,6 @@
                         <a href="{{ route('sell-applications.show', $notice->sellApplication->id) }}" class="btn btn-sm btn-outline-info">
                             <i class="fas fa-eye me-1"></i>View Sell Application
                         </a>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h6>Published Notice Content</h6>
-                        <div class="border p-4 bg-light rounded" style="white-space: pre-line; font-family: 'Times New Roman', serif;">
-                            {{ $notice->notice_content }}
-                        </div>
                     </div>
                 </div>
             </div>

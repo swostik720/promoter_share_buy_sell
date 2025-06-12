@@ -11,16 +11,16 @@
                 <h5 class="mb-0">Notice Publication Details</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('notice-publications.store') }}" method="POST">
+                <form action="{{ route('notice-publications.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    
+
                     <div class="mb-3">
                         <label for="sell_application_id" class="form-label">Approved Sell Application <span class="text-danger">*</span></label>
                         <select class="form-select @error('sell_application_id') is-invalid @enderror" id="sell_application_id" name="sell_application_id" required>
                             <option value="">Select Sell Application</option>
                             @foreach($sellApplications as $sellApp)
                                 <option value="{{ $sellApp->id }}" {{ old('sell_application_id', request('sell_application_id')) == $sellApp->id ? 'selected' : '' }}>
-                                    {{ $sellApp->seller->name }} - {{ number_format($sellApp->share_quantity_to_sell) }} shares 
+                                    {{ $sellApp->seller->name }} - {{ number_format($sellApp->share_quantity_to_sell) }} shares
                                     (Approved: {{ $sellApp->boardDecision->decision_date->format('M d, Y') }})
                                 </option>
                             @endforeach
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="publication_date" class="form-label">Publication Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control @error('publication_date') is-invalid @enderror" 
+                            <input type="date" class="form-control @error('publication_date') is-invalid @enderror"
                                    id="publication_date" name="publication_date" value="{{ old('publication_date', date('Y-m-d')) }}" required>
                             @error('publication_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -42,8 +42,8 @@
 
                         <div class="col-md-6 mb-3">
                             <label for="newspaper_name" class="form-label">Newspaper Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('newspaper_name') is-invalid @enderror" 
-                                   id="newspaper_name" name="newspaper_name" value="{{ old('newspaper_name') }}" 
+                            <input type="text" class="form-control @error('newspaper_name') is-invalid @enderror"
+                                   id="newspaper_name" name="newspaper_name" value="{{ old('newspaper_name') }}"
                                    placeholder="e.g., The Himalayan Times" required>
                             @error('newspaper_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -52,21 +52,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="notice_reference" class="form-label">Notice Reference</label>
-                        <input type="text" class="form-control @error('notice_reference') is-invalid @enderror" 
-                               id="notice_reference" name="notice_reference" value="{{ old('notice_reference') }}" 
-                               placeholder="e.g., NP-2024-001">
-                        @error('notice_reference')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="notice_content" class="form-label">Notice Content <span class="text-danger">*</span></label>
-                        <textarea class="form-control @error('notice_content') is-invalid @enderror" 
-                                  id="notice_content" name="notice_content" rows="6" required>{{ old('notice_content') }}</textarea>
-                        <small class="form-text text-muted">Enter the complete notice content as it will appear in the newspaper</small>
-                        @error('notice_content')
+                        <label for="notice_attachment" class="form-label">Notice Publication Document <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control @error('notice_attachment') is-invalid @enderror"
+                               id="notice_attachment" name="notice_attachment" accept=".pdf,.jpg,.jpeg,.png" required>
+                        <small class="form-text text-muted">Upload the published notice document (PDF, JPG, PNG - Max: 5MB)</small>
+                        @error('notice_attachment')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -99,12 +89,12 @@ document.getElementById('sell_application_id').addEventListener('change', functi
 function generateNoticeContent() {
     const sellAppSelect = document.getElementById('sell_application_id');
     const selectedOption = sellAppSelect.options[sellAppSelect.selectedIndex];
-    
+
     if (selectedOption.value) {
         const text = selectedOption.text;
         const sellerName = text.split(' - ')[0];
         const shareQuantity = text.match(/(\d+(?:,\d+)*) shares/)[1];
-        
+
         const noticeContent = `NOTICE OF SHARE SALE
 
 Notice is hereby given that ${sellerName} intends to sell ${shareQuantity} shares of the company.

@@ -57,7 +57,7 @@ class ShareholderController extends Controller
         $contactDetails = [];
         if ($request->contact_number) $contactDetails['phone'] = $request->contact_number;
         if ($request->email) $contactDetails['email'] = $request->email;
-        
+
         $validated['contact_details'] = $contactDetails;
 
         Shareholder::create($validated);
@@ -97,7 +97,7 @@ class ShareholderController extends Controller
         $contactDetails = [];
         if ($request->contact_number) $contactDetails['phone'] = $request->contact_number;
         if ($request->email) $contactDetails['email'] = $request->email;
-        
+
         $validated['contact_details'] = $contactDetails;
 
         $shareholder->update($validated);
@@ -121,7 +121,11 @@ class ShareholderController extends Controller
         return response()->json([
             'type' => $shareholder->type,
             'boid' => $shareholder->boid,
-            'demat_account' => $shareholder->demat_account
+            'demat_account' => $shareholder->demat_account,
+            'citizenship_number' => $shareholder->citizenship_number,
+            'contact_number' => $shareholder->contact_number,
+            'email' => $shareholder->email,
+            'pan_number' => $shareholder->pan_number,
         ]);
     }
 }

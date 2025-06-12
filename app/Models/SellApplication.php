@@ -11,10 +11,12 @@ class SellApplication extends Model
 
     protected $fillable = [
         'seller_id',
+        'seller_type',
         'share_quantity_to_sell',
         'proposed_price_per_share',
         'application_date',
         'demat_account',
+        'boid',
         'status',
         'reason'
     ];
@@ -58,12 +60,12 @@ class SellApplication extends Model
     {
         $required = [
             'sell_application',
-            'seller_citizenship', 
+            'seller_citizenship',
             'seller_tax_clearance',
             'seller_cia_report'
         ];
 
-        if ($this->seller && $this->seller->type === 'institutional') {
+        if ($this->seller_type === 'institutional') {
             $required[] = 'seller_moa_aoa';
             $required[] = 'seller_decision_minute';
         }

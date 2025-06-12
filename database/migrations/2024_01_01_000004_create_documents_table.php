@@ -19,8 +19,9 @@ return new class extends Migration
                 'seller_cia_report',
                 'seller_moa_aoa',
                 'seller_decision_minute',
+                'demat_account_details',
                 'seller_others',
-                
+
                 // Buy Application Documents
                 'buy_application',
                 'buyer_citizenship',
@@ -33,16 +34,19 @@ return new class extends Migration
                 'combine_application',
                 'police_report',
                 'self_declaration',
-                
+
                 // Regulatory Documents
                 'sebbon_notification',
                 'nepse_notification',
                 'nia_notification',
-                
+
                 // Board Documents
                 'board_decision_minute',
+                // 'board_decision_doc',
+
+                //Notice Publication
                 'notice_publication',
-                
+
                 // General
                 'other'
             ]);
@@ -51,6 +55,7 @@ return new class extends Migration
             $table->string('file_type');
             $table->integer('file_size');
             $table->date('upload_date');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'completed'])->default('pending');
             $table->boolean('is_verified')->default(false);
             $table->text('remarks')->nullable();
             $table->timestamps();

@@ -11,16 +11,16 @@
                 <h5 class="mb-0">Board Decision Details</h5>
             </div>
             <div class="card-body">
-                <form action="{{ route('board-decisions.store') }}" method="POST">
+                <form action="{{ route('board-decisions.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    
+
                     <div class="mb-3">
                         <label for="sell_application_id" class="form-label">Sell Application <span class="text-danger">*</span></label>
                         <select class="form-select @error('sell_application_id') is-invalid @enderror" id="sell_application_id" name="sell_application_id" required>
                             <option value="">Select Sell Application</option>
                             @foreach($sellApplications as $sellApp)
                                 <option value="{{ $sellApp->id }}" {{ old('sell_application_id', request('sell_application_id')) == $sellApp->id ? 'selected' : '' }}>
-                                    {{ $sellApp->seller->name }} - {{ number_format($sellApp->share_quantity_to_sell) }} shares 
+                                    {{ $sellApp->seller->name }} - {{ number_format($sellApp->share_quantity_to_sell) }} shares
                                     (Applied: {{ $sellApp->application_date->format('M d, Y') }})
                                 </option>
                             @endforeach
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="decision_date" class="form-label">Decision Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control @error('decision_date') is-invalid @enderror" 
+                            <input type="date" class="form-control @error('decision_date') is-invalid @enderror"
                                    id="decision_date" name="decision_date" value="{{ old('decision_date', date('Y-m-d')) }}" required>
                             @error('decision_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -54,31 +54,21 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="decision_remarks" class="form-label">Decision Remarks</label>
-                        <textarea class="form-control @error('decision_remarks') is-invalid @enderror" 
-                                  id="decision_remarks" name="decision_remarks" rows="3">{{ old('decision_remarks') }}</textarea>
-                        @error('decision_remarks')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="board_members_present" class="form-label">Board Members Present</label>
-                        <input type="text" class="form-control @error('board_members_present') is-invalid @enderror" 
-                               id="board_members_present" name="board_members_present" value="{{ old('board_members_present') }}" 
-                               placeholder="Enter names separated by commas">
-                        <small class="form-text text-muted">Enter board member names separated by commas</small>
-                        @error('board_members_present')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
                         <label for="meeting_minute_reference" class="form-label">Meeting Minute Reference</label>
-                        <input type="text" class="form-control @error('meeting_minute_reference') is-invalid @enderror" 
-                               id="meeting_minute_reference" name="meeting_minute_reference" value="{{ old('meeting_minute_reference') }}" 
+                        <input type="text" class="form-control @error('meeting_minute_reference') is-invalid @enderror"
+                               id="meeting_minute_reference" name="meeting_minute_reference" value="{{ old('meeting_minute_reference') }}"
                                placeholder="e.g., BD-2024-001">
                         @error('meeting_minute_reference')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="board_decision_doc" class="form-label">Board Decision Document <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control @error('board_decision_doc') is-invalid @enderror"
+                               id="board_decision_doc" name="board_decision_doc" accept=".pdf,.jpg,.jpeg,.png" required>
+                        <small class="form-text text-muted">Upload the board decision document (PDF, JPG, PNG - Max: 5MB)</small>
+                        @error('board_decision_doc')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>

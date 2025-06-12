@@ -56,12 +56,12 @@
                             <tr>
                                 <th width="40%">Status:</th>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $application->status == 'pending' ? 'warning' : 
-                                        ($application->status == 'board_approved' ? 'info' : 
-                                        ($application->status == 'board_rejected' ? 'danger' : 
-                                        ($application->status == 'notice_published' ? 'primary' : 
-                                        ($application->status == 'completed' ? 'success' : 'secondary')))) 
+                                    <span class="badge bg-{{
+                                        $application->status == 'pending' ? 'warning' :
+                                        ($application->status == 'board_approved' ? 'info' :
+                                        ($application->status == 'board_rejected' ? 'danger' :
+                                        ($application->status == 'notice_published' ? 'primary' :
+                                        ($application->status == 'completed' ? 'success' : 'secondary'))))
                                     }}">
                                         {{ ucfirst(str_replace('_', ' ', $application->status)) }}
                                     </span>
@@ -94,7 +94,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <strong>Decision:</strong> 
+                        <strong>Decision:</strong>
                         <span class="badge bg-{{ $application->boardDecision->decision == 'approved' ? 'success' : 'danger' }}">
                             {{ ucfirst($application->boardDecision->decision) }}
                         </span>
@@ -132,12 +132,6 @@
                         <strong>Newspaper:</strong> {{ $application->noticePublication->newspaper_name }}
                     </div>
                 </div>
-                <div class="mt-2">
-                    <strong>Notice Content:</strong>
-                    <div class="border p-2 mt-1 bg-light">
-                        {{ $application->noticePublication->notice_content }}
-                    </div>
-                </div>
             </div>
         </div>
         @endif
@@ -172,10 +166,10 @@
                                 <td>Rs. {{ number_format($buyApp->offered_price_per_share, 2) }}</td>
                                 <td>Rs. {{ number_format($buyApp->share_quantity_to_buy * $buyApp->offered_price_per_share, 2) }}</td>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $buyApp->status == 'pending' ? 'warning' : 
-                                        ($buyApp->status == 'approved' ? 'success' : 
-                                        ($buyApp->status == 'rejected' ? 'danger' : 'info')) 
+                                    <span class="badge bg-{{
+                                        $buyApp->status == 'pending' ? 'warning' :
+                                        ($buyApp->status == 'approved' ? 'success' :
+                                        ($buyApp->status == 'rejected' ? 'danger' : 'info'))
                                     }}">
                                         {{ ucfirst($buyApp->status) }}
                                     </span>
@@ -200,9 +194,9 @@
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Documents</h6>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                {{-- <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
                     <i class="fas fa-upload me-1"></i>Upload
-                </button>
+                </button> --}}
             </div>
             <div class="card-body">
                 @if($application->documents->count() > 0)
@@ -241,7 +235,7 @@
                         <i class="fas fa-gavel me-1"></i>Record Board Decision
                     </a>
                 @endif
-                
+
                 @if($application->status == 'board_approved')
                     <a href="{{ route('notice-publications.create') }}?sell_application_id={{ $application->id }}" class="btn btn-sm btn-info w-100 mb-2">
                         <i class="fas fa-newspaper me-1"></i>Publish Notice
@@ -253,14 +247,14 @@
 </div>
 
 <!-- Upload Document Modal -->
-<div class="modal fade" id="uploadDocumentModal" tabindex="-1">
+{{-- <div class="modal fade" id="uploadDocumentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="documentable_type" value="App\Models\SellApplication">
                 <input type="hidden" name="documentable_id" value="{{ $application->id }}">
-                
+
                 <div class="modal-header">
                     <h5 class="modal-title">Upload Document</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -293,5 +287,5 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 @endsection

@@ -51,6 +51,11 @@
                                 <a href="{{ route('board-decisions.edit', $decision->id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                @if($decision->documents && $decision->documents->count() > 0)
+                                        <a href="{{ route('documents.download', $decision->documents->first()->id) }}" class="btn btn-sm btn-outline-success" title="Download Decision">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                @endif
                             </div>
                         </td>
                     </tr>

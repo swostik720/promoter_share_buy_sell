@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BuyApplication;
 use App\Models\SellApplication;
+use App\Models\Shareholder;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -42,7 +43,24 @@ class BuyApplicationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('buy-applications.create', compact('sellApplications'));
+        // Get shareholders for existing promoter dropdown
+        $shareholders = Shareholder::orderBy('name')->get();
+
+        return view('buy-applications.create', compact('sellApplications', 'shareholders'));
+    }
+
+    public function getShareholderData($id)
+    {
+        $shareholder = Shareholder::findOrFail($id);
+
+        return response()->json([
+            'name' => $shareholder->name,
+            'shareholder_type' => $shareholder->shareholder_type,
+            'citizenship_number' => $shareholder->citizenship_number,
+            'contact_number' => $shareholder->contact_number,
+            'email' => $shareholder->email,
+            'boid' => $shareholder->boid,
+        ]);
     }
 
     public function store(Request $request)
@@ -50,8 +68,8 @@ class BuyApplicationController extends Controller
         $validated = $request->validate([
             'sell_application_id' => 'required|exists:sell_applications,id',
             'buyer_name' => 'required|string|max:255',
-            'buyer_type' => 'required|in:individual,institutional',
             'buyer_category' => 'required|in:existing_promoter,public',
+            'buyer_type' => 'required|in:individual,institutional',
             'share_quantity_to_buy' => 'required|integer|min:1',
             'offered_price_per_share' => 'required|numeric|min:0',
             'application_date' => 'required|date',
@@ -60,7 +78,7 @@ class BuyApplicationController extends Controller
             'demat_account' => 'required|string',
             'phone' => 'nullable|string',
             'email' => 'nullable|email',
-            
+
             // Required document uploads
             'buy_application_doc' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'buyer_citizenship' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -68,10 +86,10 @@ class BuyApplicationController extends Controller
             'buyer_tax_clearance' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'buyer_income_source' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'combine_application' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'police_report' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'self_declaration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            
+
             // Conditional documents for institutional buyers
+            'police_report' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'buyer_moa_aoa' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'buyer_decision_minute' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'buyer_others' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -101,14 +119,14 @@ class BuyApplicationController extends Controller
         $contactDetails = [];
         if ($request->phone) $contactDetails['phone'] = $request->phone;
         if ($request->email) $contactDetails['email'] = $request->email;
-        
+
         $validated['contact_details'] = $contactDetails;
 
         // Create buy application
         $buyApplication = BuyApplication::create($validated);
 
         // Handle document uploads
-        $this->handleDocumentUploads($request, $buyApplication, 'buy');
+        $this->handleDocumentUploads($request, $buyApplication);
 
         return redirect()->route('buy-applications.show', $buyApplication->id)
             ->with('success', 'Buy application created successfully with documents');
@@ -127,7 +145,7 @@ class BuyApplicationController extends Controller
         return back()->with('success', 'Buy application status updated successfully');
     }
 
-    private function handleDocumentUploads(Request $request, $application, $type)
+    private function handleDocumentUploads(Request $request, $application)
     {
         $documentTypes = [
             'buy_application_doc' => 'buy_application',
@@ -166,6 +184,7 @@ class BuyApplicationController extends Controller
                     'file_type' => $file->getClientMimeType(),
                     'file_size' => $file->getSize(),
                     'upload_date' => now(),
+                    'status' => 'pending',
                 ]);
             }
         }

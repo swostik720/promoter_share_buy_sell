@@ -8,16 +8,30 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%); /* red to light orange */
             min-height: 100vh;
             display: flex;
             align-items: center;
         }
+
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .btn-primary:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+
+        .text-primary {
+            color: #d32f2f !important;
         }
     </style>
 </head>
@@ -43,12 +57,12 @@
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
-                            
+
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email" value="{{ old('email') }}" required autofocus>
                                 </div>
                                 @error('email')
@@ -60,7 +74,7 @@
                                 <label for="password" class="form-label">Password</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
                                            id="password" name="password" required>
                                 </div>
                                 @error('password')
@@ -77,16 +91,6 @@
                                 <i class="fas fa-sign-in-alt me-2"></i>Login
                             </button>
                         </form>
-
-                        <div class="mt-4 text-center">
-                            <small class="text-muted">
-                                <strong>Demo Users:</strong><br>
-                                Admin: admin@example.com / password<br>
-                                Manager: manager@example.com / password<br>
-                                Officer: officer@example.com / password<br>
-                                Viewer: viewer@example.com / password
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>

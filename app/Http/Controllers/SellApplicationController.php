@@ -52,7 +52,6 @@ class SellApplicationController extends Controller
     {
         $validated = $request->validate([
             'seller_id' => 'required|exists:shareholders,id',
-            'seller_type' => 'required|in:individual,institutional',
             'share_quantity_to_sell' => 'required|integer|min:1',
             'proposed_price_per_share' => 'nullable|numeric|min:0',
             'application_date' => 'required|date',
@@ -71,8 +70,12 @@ class SellApplicationController extends Controller
             'seller_others' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        // Get seller type from the shareholder
+        $seller = Shareholder::findOrFail($validated['seller_id']);
+        $sellerType = $seller->type;
+
         // Additional validation for institutional sellers
-        if ($validated['seller_type'] === 'institutional') {
+        if ($sellerType === 'institutional') {
             $request->validate([
                 'seller_moa_aoa' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
                 'seller_decision_minute' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -80,17 +83,25 @@ class SellApplicationController extends Controller
         }
 
         // Check if seller has enough shares
-        $seller = Shareholder::findOrFail($validated['seller_id']);
         if ($seller->share_quantity < $validated['share_quantity_to_sell']) {
             return back()->withErrors(['share_quantity_to_sell' => 'Insufficient shares to sell'])
                 ->withInput();
         }
 
-        // Create sell application
-        $sellApplication = SellApplication::create($validated);
+        // Create sell application with seller type
+        $sellApplication = SellApplication::create([
+            'seller_id' => $validated['seller_id'],
+            'seller_type' => $sellerType, // Add seller type from shareholder
+            'share_quantity_to_sell' => $validated['share_quantity_to_sell'],
+            'proposed_price_per_share' => $validated['proposed_price_per_share'],
+            'application_date' => $validated['application_date'],
+            'demat_account' => $validated['demat_account'],
+            'boid' => $validated['boid'],
+            'reason' => $validated['reason'],
+        ]);
 
         // Handle document uploads
-        $this->handleDocumentUploads($request, $sellApplication, 'sell');
+        $this->handleDocumentUploads($request, $sellApplication);
 
         return redirect()->route('sell-applications.show', $sellApplication->id)
             ->with('success', 'Sell application created successfully with documents');
@@ -113,7 +124,6 @@ class SellApplicationController extends Controller
 
         $validated = $request->validate([
             'seller_id' => 'required|exists:shareholders,id',
-            'seller_type' => 'required|in:individual,institutional',
             'share_quantity_to_sell' => 'required|integer|min:1',
             'proposed_price_per_share' => 'nullable|numeric|min:0',
             'application_date' => 'required|date',
@@ -122,11 +132,16 @@ class SellApplicationController extends Controller
             'reason' => 'nullable|string'
         ]);
 
-        $application->update($validated);
+        // Get seller type from the shareholder
+        $seller = Shareholder::findOrFail($validated['seller_id']);
+        $sellerType = $seller->type;
+
+        // Update application with seller type
+        $application->update(array_merge($validated, ['seller_type' => $sellerType]));
 
         // Handle new document uploads if any
-        if ($request->hasAnyFile(['sell_application_doc', 'seller_citizenship', 'seller_tax_clearance', 'seller_cia_report', 'seller_moa_aoa', 'seller_decision_minute', 'demat_account_details', 'seller_others'])) {
-            $this->handleDocumentUploads($request, $application, 'sell');
+        if ($request->hasFile(['sell_application_doc', 'seller_citizenship', 'seller_tax_clearance', 'seller_cia_report', 'seller_moa_aoa', 'seller_decision_minute', 'demat_account_details', 'seller_others'])) {
+            $this->handleDocumentUploads($request, $application);
         }
 
         return redirect()->route('sell-applications.show', $application->id)
@@ -146,7 +161,7 @@ class SellApplicationController extends Controller
         return back()->with('success', 'Application status updated successfully');
     }
 
-    private function handleDocumentUploads(Request $request, $application, $type)
+    private function handleDocumentUploads(Request $request, $application)
     {
         $documentTypes = [
             'sell_application_doc' => 'sell_application',
@@ -182,8 +197,10 @@ class SellApplicationController extends Controller
                     'file_type' => $file->getClientMimeType(),
                     'file_size' => $file->getSize(),
                     'upload_date' => now(),
+                    'status' => 'pending',
                 ]);
             }
         }
     }
 }
+

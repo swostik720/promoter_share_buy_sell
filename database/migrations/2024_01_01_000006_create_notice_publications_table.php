@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('sell_application_id')->constrained('sell_applications');
             $table->date('publication_date');
             $table->string('newspaper_name');
-            $table->text('notice_content');
             $table->string('notice_reference')->nullable();
             $table->timestamps();
         });

@@ -13,7 +13,7 @@
                     @if($application->status == 'pending')
                     <form action="{{ route('buy-applications.update-status', $application->id) }}" method="POST" class="d-inline">
                         @csrf
-                        @method('PATCH')
+                        @method('POST')
                         <input type="hidden" name="status" value="approved">
                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this application?')">
                             <i class="fas fa-check me-1"></i>Approve
@@ -21,7 +21,7 @@
                     </form>
                     <form action="{{ route('buy-applications.update-status', $application->id) }}" method="POST" class="d-inline">
                         @csrf
-                        @method('PATCH')
+                        @method('POST')
                         <input type="hidden" name="status" value="rejected">
                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Reject this application?')">
                             <i class="fas fa-times me-1"></i>Reject
@@ -80,10 +80,10 @@
                             <tr>
                                 <th>Status:</th>
                                 <td>
-                                    <span class="badge bg-{{ 
-                                        $application->status == 'pending' ? 'warning' : 
-                                        ($application->status == 'approved' ? 'success' : 
-                                        ($application->status == 'rejected' ? 'danger' : 'info')) 
+                                    <span class="badge bg-{{
+                                        $application->status == 'pending' ? 'warning' :
+                                        ($application->status == 'approved' ? 'success' :
+                                        ($application->status == 'rejected' ? 'danger' : 'info'))
                                     }}">
                                         {{ ucfirst($application->status) }}
                                     </span>
@@ -150,7 +150,7 @@
                         <strong>Available Quantity:</strong> {{ number_format($application->sellApplication->share_quantity_to_sell) }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Status:</strong> 
+                        <strong>Status:</strong>
                         <span class="badge bg-info">{{ ucfirst(str_replace('_', ' ', $application->sellApplication->status)) }}</span><br>
                         @if($application->sellApplication->proposed_price_per_share)
                             <strong>Proposed Price:</strong> Rs. {{ number_format($application->sellApplication->proposed_price_per_share, 2) }}
@@ -171,9 +171,6 @@
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Documents</h6>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
-                    <i class="fas fa-upload me-1"></i>Upload
-                </button>
             </div>
             <div class="card-body">
                 @if($application->documents->count() > 0)
@@ -216,50 +213,6 @@
         @endif
     </div>
 </div>
-
-<!-- Upload Document Modal -->
-<div class="modal fade" id="uploadDocumentModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="documentable_type" value="App\Models\BuyApplication">
-                <input type="hidden" name="documentable_id" value="{{ $application->id }}">
-                
-                <div class="modal-header">
-                    <h5 class="modal-title">Upload Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="document_type" class="form-label">Document Type</label>
-                        <select class="form-select" name="document_type" required>
-                            <option value="">Select Document Type</option>
-                            <option value="application">Application</option>
-                            <option value="citizenship">Citizenship</option>
-                            <option value="tax_clearance">Tax Clearance</option>
-                            <option value="cia_report">CIA Report</option>
-                            <option value="income_source">Income Source</option>
-                            <option value="police_report">Police Report</option>
-                            <option value="self_declaration">Self Declaration</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="file" class="form-label">File</label>
-                        <input type="file" class="form-control" name="file" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="remarks" class="form-label">Remarks</label>
-                        <textarea class="form-control" name="remarks" rows="2"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Upload</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 @endsection
+
+

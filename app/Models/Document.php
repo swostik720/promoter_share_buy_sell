@@ -18,17 +18,25 @@ class Document extends Model
         'file_type',
         'file_size',
         'upload_date',
-        'is_verified',
+        'status',
+        'verified_by',
+        'verified_at',
         'remarks'
     ];
 
     protected $casts = [
-        'upload_date' => 'date',
-        'is_verified' => 'boolean'
+        'upload_date' => 'datetime',
+        'verified_at' => 'datetime',
+        'file_size' => 'integer'
     ];
 
     public function documentable()
     {
         return $this->morphTo();
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }

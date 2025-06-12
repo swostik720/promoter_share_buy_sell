@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ $shareholder->name }}</h5>
@@ -47,16 +47,32 @@
                                 <td>{{ $shareholder->citizenship_number ?? 'N/A' }}</td>
                             </tr>
                             <tr>
-                                <th>PAN Number:</th>
-                                <td>{{ $shareholder->pan_number ?? 'N/A' }}</td>
+                                <th>Gender:</th>
+                                <td>{{ ucfirst($shareholder->gender ?? 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Father's Name:</th>
+                                <td>{{ $shareholder->father_name ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Grandfather's Name:</th>
+                                <td>{{ $shareholder->grandfather_name ?? 'N/A' }}</td>
                             </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
                         <table class="table table-borderless">
                             <tr>
-                                <th width="40%">Demat Account:</th>
+                                <th width="40%">BOID:</th>
+                                <td>{{ $shareholder->boid ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Demat Account:</th>
                                 <td>{{ $shareholder->demat_account ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>PAN Number:</th>
+                                <td>{{ $shareholder->pan_number ?? 'N/A' }}</td>
                             </tr>
                             <tr>
                                 <th>Phone:</th>
@@ -67,16 +83,20 @@
                                 <td>{{ $shareholder->contact_details['email'] ?? 'N/A' }}</td>
                             </tr>
                             <tr>
+                                <th>Address:</th>
+                                <td>{{ $shareholder->address ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Contact Person:</th>
+                                <td>{{ $shareholder->contact_person ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
                                 <th>Status:</th>
                                 <td>
                                     <span class="badge bg-{{ $shareholder->is_active ? 'success' : 'danger' }}">
                                         {{ $shareholder->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
-                            </tr>
-                            <tr>
-                                <th>Created:</th>
-                                <td>{{ $shareholder->created_at->format('M d, Y') }}</td>
                             </tr>
                         </table>
                     </div>
@@ -137,7 +157,7 @@
         @endif
     </div>
 
-    <div class="col-md-4">
+    {{-- <div class="col-md-4">
         <!-- Documents -->
         <div class="card shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -155,14 +175,27 @@
                             <br><small class="text-muted">{{ $document->file_name }}</small>
                         </div>
                         <div>
-                            @if($document->is_verified)
+                            @if($document->status == 'verified')
                                 <i class="fas fa-check-circle text-success" title="Verified"></i>
                             @else
                                 <i class="fas fa-clock text-warning" title="Pending Verification"></i>
+                                <form action="{{ route('documents.verify', $document->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Verify">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
                             @endif
-                            <a href="{{ route('documents.download', $document->id) }}" class="btn btn-sm btn-outline-primary ms-1">
+                            <a href="{{ route('documents.download', $document->id) }}" class="btn btn-sm btn-outline-primary" title="Download">
                                 <i class="fas fa-download"></i>
                             </a>
+                            <form action="{{ route('documents.destroy', $document->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this document?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                     @endforeach
@@ -171,16 +204,16 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 <!-- Upload Document Modal -->
-<div class="modal fade" id="uploadDocumentModal" tabindex="-1">
+{{-- <div class="modal fade" id="uploadDocumentModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="documentable_type" value="App\Models\Shareholder">
+                <input type="hidden" name="documentable_type" value="shareholder">
                 <input type="hidden" name="documentable_id" value="{{ $shareholder->id }}">
 
                 <div class="modal-header">
@@ -215,5 +248,5 @@
             </form>
         </div>
     </div>
-</div>
+</div> --}}
 @endsection
